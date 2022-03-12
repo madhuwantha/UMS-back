@@ -155,5 +155,6 @@ Q_CLUSTER = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    '*',
+    'http://localhost:4200',
+    'http://143.198.96.209'
 ]
