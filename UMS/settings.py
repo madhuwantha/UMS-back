@@ -23,10 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r!4+u1(qgi5-327ag43ijpu-3mf(&x1)&k04^invsl3&*gipuj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -157,4 +156,13 @@ Q_CLUSTER = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:4200',
     'http://143.198.96.209'
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]

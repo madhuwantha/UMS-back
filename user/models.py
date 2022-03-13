@@ -12,6 +12,7 @@ class User(models.Model):
     date_accepted_to_sand_privacy_policy = models.DateTimeField()
     fire_monitoring_is_on = models.BooleanField(default=False)
     weather_monitoring_is_on = models.BooleanField(default=False)
+    custom_id = models.CharField(max_length=30, default="")
 
     created = models.DateTimeField(editable=False, auto_created=True)
     modified = models.DateTimeField()
@@ -49,7 +50,7 @@ class Notification(models.Model):
     distance = models.FloatField(default=0)
 
     created = models.DateTimeField(editable=False, auto_created=True)
-    modified = models.DateTimeField()
+    modified = models.DateTimeField(default=timezone.now())
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''

@@ -20,12 +20,26 @@ def index(request):
     return render(request, 'index.html')
 
 
+class UserPropertyRemoveView(APIView):
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        try:
+            p_id = request.data["p_id"]
+            u = Property.objects.get(pk=p_id).delete()
+            return JsonResponse({"status": True})
+        except Exception as e:
+            print(e.with_traceback())
+            return Response({'error': e.__str__()})
+
+
 class UserPropertyAddView(APIView):
     parser_classes = [JSONParser]
 
     def post(self, request):
         try:
             user_id = request.data["user_id"]
+            u = User.objects.get(custom_id=user_id)
             radius = request.data["radius"]
             latitude = request.data["latitude"]
             longitude = request.data["longitude"]
@@ -38,7 +52,7 @@ class UserPropertyAddView(APIView):
                 longitude=longitude,
                 property_name=property_name,
                 property_address=property_address,
-                user=User.objects.get(pk=user_id)
+                user=u
             )
             p.save()
             return Response({'status': True})
@@ -57,6 +71,7 @@ class UserAddView(APIView):
 
     def post(self, request):
         try:
+            user_id = request.data["user_id"]
             user_name = request.data["user_name"]
             email = request.data["email"]
             device_token = request.data["device_token"]
@@ -74,7 +89,8 @@ class UserAddView(APIView):
                 did_accept_to_sand_privacy_policy=did_accept_to_sand_privacy_policy,
                 date_accepted_to_sand_privacy_policy=date_accepted_to_sand_privacy_policy,
                 fire_monitoring_is_on=fire_monitoring_is_on,
-                weather_monitoring_is_on=weather_monitoring_is_on
+                weather_monitoring_is_on=weather_monitoring_is_on,
+                custom_id=user_id
             )
             u.save()
             properties = list(request.data["properties"])
@@ -103,9 +119,9 @@ class UserView(APIView):
     """This endpoint list all the available Users from the database"""
 
     def get(self, request, id):
-        u = User.objects.get(pk=id)
+        u = User.objects.filter(custom_id=id)[0]
         u = model_to_dict(u)
-        p = list(Property.objects.filter(user=id).values())
+        p = list(Property.objects.filter(user=u["id"]).values())
         u['properties'] = p
         return JsonResponse(u)
 
@@ -128,7 +144,10 @@ class UpdateUserAPIView(UpdateAPIView):
     serializer_class = UserSerializer
 
 
-class DeleteUserAPIView(DestroyAPIView):
+class UserDeleteAPIView(APIView):
     """This endpoint allows for deletion of a specific User from the database"""
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        u = User.objects.filter(custom_id=request.data["custom_id"]).delete()
+        return JsonResponse({"status": True})
