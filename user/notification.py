@@ -1,4 +1,5 @@
 import json
+import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
@@ -122,7 +123,7 @@ def sent_fire_notification():
                 fire = dict(fire_api(lat, lon, radius))
                 if "distance" in list(fire.keys()):
                     distance = float(fire["distance"])
-                    if distance >= radius:  # TODO: change to <=
+                    if distance <= radius:
                         dt = timezone.now() - timedelta(days=1)
                         start = dt.replace(hour=0, minute=0, second=0, microsecond=0)
                         notification_sent_within_24 = Notification.objects.filter(property=property_id,
@@ -135,24 +136,37 @@ def sent_fire_notification():
                             send_notification(device_token, title, text)
                         else:
                             last = list(notification_sent_within_24)[len(list(notification_sent_within_24)) - 1]
+                            lat_distance = last["distance"]
+                            if distance < lat_distance:
+                                text = f"Urgent Fire Alert, Wildfire Detected Closer to Your {property_name}." \
+                                       f" Current distance: {distance}. Tap for more info."
+                                save_notification(property_id, 'fire', distance)
+                                send_notification(device_token, title, text)
     except Exception as e:
         print(e.with_traceback())
 
 
 def check_storm():
     scheduler = BackgroundScheduler()
-    # scheduler.add_job(send_storm_notifications, 'interval', minutes=100, next_run_time=datetime.utcnow())
-    # TODO: change time to start
+    d = int(time.time())
+    dt = get_tim_in_zone(d)
+    h = dt.hour
+    if h > 8:
+        d = dt.day
+        dt = dt.replace(hour=8, minute=0, second=0, day=d + 1)
+    else:
+        dt = dt.replace(hour=8, minute=0, second=0)
+    scheduler.add_job(send_storm_notifications, 'interval', minutes=1440, next_run_time=dt)
     scheduler.start()
 
 
 def check_fire():
     scheduler = BackgroundScheduler()
-    # scheduler.add_job(sent_fire_notification, 'interval', minutes=25, next_run_time=datetime.utcnow())
+    scheduler.add_job(sent_fire_notification, 'interval', minutes=25, next_run_time=datetime.utcnow())
     scheduler.start()
 
 
 def notification_garbage_cleaner():
     scheduler = BackgroundScheduler()
-    # scheduler.add_job(delete_24_early_notifications, 'interval', minutes=60, next_run_time=datetime.utcnow())
+    scheduler.add_job(delete_24_early_notifications, 'interval', minutes=60, next_run_time=datetime.utcnow())
     scheduler.start()

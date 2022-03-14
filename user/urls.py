@@ -7,6 +7,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.index),
+    path('test/', views.Test.as_view(),name="test"),
     path("all/", views.ListUserAPIView.as_view(), name="user_all"),
     path("get/<str:id>/", views.UserView.as_view(), name="user"),
     path("create/", views.UserAddView.as_view(), name="user_create"),

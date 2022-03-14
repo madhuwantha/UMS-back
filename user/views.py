@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+import time
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView
@@ -10,14 +12,34 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.models import User, Property, Notification
+from user.notification import save_notification, send_notification
 from user.serializers import UserSerializer
 # from rest_framework.parsers import JSONParser
 from django.forms.models import model_to_dict
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+
+from user.utils import fire_api, get_tim_in_zone
 
 
 def index(request):
     return render(request, 'index.html')
+
+
+class Test(APIView):
+
+    def post(self, request):
+        d = int(time.time())
+        dt = get_tim_in_zone(d)
+        h = dt.hour
+        if h > 8:
+            d = dt.day
+            dt = dt.replace(hour=8, minute=0, second=0, day=d+1)
+        else:
+            dt = dt.replace(hour=8, minute=0, second=0)
+
+        print(d)
+
 
 
 class UserPropertyRemoveView(APIView):
