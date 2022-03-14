@@ -34,16 +34,16 @@ class Test(APIView):
         h = dt.hour
         if h > 8:
             d = dt.day
-            dt = dt.replace(hour=8, minute=0, second=0, day=d+1)
+            dt = dt.replace(hour=8, minute=0, second=0, day=d + 1)
         else:
             dt = dt.replace(hour=8, minute=0, second=0)
 
         print(d)
 
 
-
 class UserPropertyRemoveView(APIView):
     parser_classes = [JSONParser]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:
@@ -51,12 +51,13 @@ class UserPropertyRemoveView(APIView):
             u = Property.objects.get(pk=p_id).delete()
             return JsonResponse({"status": True})
         except Exception as e:
-            print(e.with_traceback())
+            print(e.__str__())
             return Response({'error': e.__str__()})
 
 
 class UserPropertyAddView(APIView):
     parser_classes = [JSONParser]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:
@@ -79,7 +80,7 @@ class UserPropertyAddView(APIView):
             p.save()
             return Response({'status': True})
         except Exception as e:
-            print(e.with_traceback())
+            print(e.__str__())
             return Response({'error': e.__str__()})
 
 
@@ -88,8 +89,7 @@ class UserAddView(APIView):
     A view that can accept POST requests with JSON content.
     """
     parser_classes = [JSONParser]
-
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         try:
@@ -133,35 +133,43 @@ class UserAddView(APIView):
                 p.save()
             return Response({'status': True})
         except Exception as e:
-            print(e.with_traceback())
+            print(e.__str__())
             return Response({'error': e.__str__()})
 
 
 class UserView(APIView):
     """This endpoint list all the available Users from the database"""
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, id):
-        u = User.objects.filter(custom_id=id)[0]
-        u = model_to_dict(u)
-        p = list(Property.objects.filter(user=u["id"]).values())
-        u['properties'] = p
-        return JsonResponse(u)
+        try:
+            u = User.objects.filter(custom_id=id)[0]
+            u = model_to_dict(u)
+            p = list(Property.objects.filter(user=u["id"]).values())
+            u['properties'] = p
+            return JsonResponse(u)
+        except Exception as e:
+            print(e.__str__())
+            return Response({'error': e.__str__()})
 
 
 class ListUserAPIView(ListAPIView):
     """This endpoint allows for creation of a User"""
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class CreateUserAPIView(CreateAPIView):
     """This endpoint allows for creation of a User"""
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class UpdateUserAPIView(UpdateAPIView):
     """This endpoint allows for updating a specific User by passing in the id of the User to update"""
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -169,6 +177,7 @@ class UpdateUserAPIView(UpdateAPIView):
 class UserDeleteAPIView(APIView):
     """This endpoint allows for deletion of a specific User from the database"""
     parser_classes = [JSONParser]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         u = User.objects.filter(custom_id=request.data["custom_id"]).delete()
