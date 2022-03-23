@@ -62,6 +62,7 @@ def has_storm(lat: float, lon: float):
     return list(filter(lambda dic: _has_storm_weather(dic), hourly))
 
 
-# fire_api(12,12, 30)
+# a = fire_api(37.52, -122.349, 100)
+# print(a)
 #
 # h = requests.post("http://144.126.145.207/get_object/", data={'reference_id':'31b7d08ef1cf11eb9f4e683e261a1863'})

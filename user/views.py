@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from user.models import User, Property, Notification
-from user.notification import save_notification, send_notification
+from user.notification import save_notification, send_notification, sent_fire_notification
 from user.serializers import UserSerializer
 # from rest_framework.parsers import JSONParser
 from django.forms.models import model_to_dict
@@ -29,6 +29,8 @@ def index(request):
 class Test(APIView):
 
     def post(self, request):
+
+        sent_fire_notification()
         d = int(time.time())
         dt = get_tim_in_zone(d)
         h = dt.hour

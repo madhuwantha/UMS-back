@@ -1,9 +1,10 @@
 import json
+import logging
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
-import datetime
+# import datetime
 
 from firebase_admin import messaging
 from django.utils import timezone
@@ -43,15 +44,18 @@ def delete_24_early_notifications():
 
 
 def save_notification(property: int, type: str, distance: float):
+    print("save_notification ----------------")
     try:
         p = Property.objects.get(pk=property)
         n = Notification(property=p, type=type, distance=distance)
         n.save()
+        print("notification saved")
     except Exception as e:
         print(e.with_traceback())
 
 
 def send_notification(device_token: str, title: str, text: str):
+    print("send_notification ---------------------------")
     """
     :param device_token:
     :param title:
@@ -75,7 +79,6 @@ def send_notification(device_token: str, title: str, text: str):
 
     try:
         resp = requests.post(FCM_URL, data=json.dumps(fcm_message), headers=headers)
-
         if resp.status_code == 200:
             print('Message sent to Firebase for delivery, response:')
             print(resp.text)
@@ -161,12 +164,14 @@ def check_storm():
 
 
 def check_fire():
+    print("check_fire-------------------------------------")
     scheduler = BackgroundScheduler()
     scheduler.add_job(sent_fire_notification, 'interval', minutes=25, next_run_time=datetime.utcnow())
     scheduler.start()
 
 
 def notification_garbage_cleaner():
+    print("notification_garbage_cleaner-------------------------------------")
     scheduler = BackgroundScheduler()
     scheduler.add_job(delete_24_early_notifications, 'interval', minutes=60, next_run_time=datetime.utcnow())
     scheduler.start()

@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'user',
-    # 'user.apps.UserConfig',
+    # 'user',
+    'user.apps.UserConfig',
     'django_q',
 
 ]
@@ -154,8 +154,10 @@ Q_CLUSTER = {
 }
 
 CORS_ALLOWED_ORIGINS = [
+    # 'http://localhost:4200',
+    # 'http://143.198.96.209',
     'http://localhost:4200',
-    'http://143.198.96.209'
+    'https://localhost:4200',
 ]
 
 CORS_ALLOW_METHODS = [
